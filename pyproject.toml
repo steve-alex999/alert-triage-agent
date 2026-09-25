@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alert-triage-agent"
+version = "0.1.0"
+description = "Tool-calling LLM agent that triages synthetic security alerts, with an evaluation harness."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=1.8",
+    "fastembed>=0.8",
+    "pydantic>=2.9",
+    "qdrant-client>=1.12",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools]
+packages = ["triage"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
