@@ -3,8 +3,8 @@
 A tool-calling LLM agent that triages security alerts, with an evaluation harness that
 measures it against a no-tools baseline. All data is synthetic.
 
-**Status:** data, models and change-record search are done. The agent loop, `eval.py`,
-the API and Docker Compose come next.
+**Status:** data, change-record search and the agent loop are done. `eval.py`, the API
+and Docker Compose come next.
 
 ## Quick start
 
@@ -13,8 +13,27 @@ python -m venv .venv && source .venv/bin/activate
 pip install -e '.[dev]'
 python -m triage.synthetic   # regenerate data/ (the committed files are identical)
 python -m triage.store       # index change records in Qdrant, then search for the named case
-pytest
+pytest                       # offline; the agent tests use a scripted model
+
+export GEMINI_API_KEY=...    # free key from https://aistudio.google.com/app/apikey
+python -m triage.agent                        # triage the named case
+python -m triage.agent --setup baseline       # same alert, no lookups
+python -m triage.agent --alert ALR-53006 --setup guard
 ```
+
+The model is reached through an OpenAI-compatible adapter. `TRIAGE_PROVIDER` picks
+`gemini` (default) or `ollama`, and `TRIAGE_MODEL` picks the model (default
+`gemini-3.5-flash-lite`).
+
+## How the agent works
+
+The model gets the alert and five tools: `search_change_records`, `get_asset`,
+`get_identity`, `check_indicator` and `submit_verdict`. It may make up to 5 lookups, then
+must call `submit_verdict`, whose arguments are validated against the `Verdict` model. An
+invalid verdict gets one retry; a second failure, or no verdict at all, returns a fallback
+verdict that escalates with `needs_human` set. The `baseline` setup offers only
+`submit_verdict`, and the `guard` setup wraps the alert in `<untrusted_alert>` tags and
+tells the model to treat its contents as data.
 
 `triage.store` uses Qdrant's embedded mode (`.qdrant/`) unless `QDRANT_URL` points at a
 server. Embeddings come from `BAAI/bge-small-en-v1.5` via fastembed, run locally; set
