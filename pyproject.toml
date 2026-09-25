@@ -9,8 +9,8 @@ description = "Tool-calling LLM agent that triages synthetic security alerts, wi
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "anthropic>=1.8",
     "fastembed>=0.8",
+    "openai>=2.0",
     "pydantic>=2.9",
     "qdrant-client>=1.12",
 ]
