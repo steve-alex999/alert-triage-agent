@@ -1,0 +1,80 @@
+{"name":"aditi.eriksen","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"aditi.gupta","account_type":"human","team":"security","owner":null,"credential_changes":[]}
+{"name":"amara.nakamura","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"amara.quintero","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"amara.zhou","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"bilal.gupta","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"bilal.rossi","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"bilal.yilmaz","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"bruno.castillo","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"chen.okafor","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"clara.moreau","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"clara.yilmaz","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
+{"name":"dana.oliveira","account_type":"human","team":"it-ops","owner":null,"credential_changes":[]}
+{"name":"dev.adeyemi","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
+{"name":"dev.eriksen","account_type":"human","team":"it-ops","owner":null,"credential_changes":[]}
+{"name":"dev.zhou","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
+{"name":"elif.haddad","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"elif.lindqvist","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"farah.rossi","account_type":"human","team":"data","owner":null,"credential_changes":[]}
+{"name":"gustavo.jansen","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"gustavo.moreau","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"gustavo.rossi","account_type":"human","team":"it-ops","owner":null,"credential_changes":[]}
+{"name":"hana.wojcik","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"hana.zhou","account_type":"human","team":"it-ops","owner":null,"credential_changes":[]}
+{"name":"imani.eriksen","account_type":"human","team":"data","owner":null,"credential_changes":[]}
+{"name":"imani.mensah","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"imani.quintero","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"imani.rossi","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"kavya.rossi","account_type":"human","team":"data","owner":null,"credential_changes":[]}
+{"name":"liam.adeyemi","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
+{"name":"liam.okafor","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
+{"name":"liam.yilmaz","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"maya.gupta","account_type":"human","team":"security","owner":null,"credential_changes":[]}
+{"name":"maya.varga","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
+{"name":"nikhil.park","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"olga.nakamura","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"priya.lindqvist","account_type":"human","team":"data","owner":null,"credential_changes":[]}
+{"name":"quinn.oliveira","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"rafael.haddad","account_type":"human","team":"it-ops","owner":null,"credential_changes":[]}
+{"name":"rafael.ncube","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"root","account_type":"service","team":"it-ops","owner":"gustavo.rossi","credential_changes":[]}
+{"name":"sana.moreau","account_type":"human","team":"security","owner":null,"credential_changes":[]}
+{"name":"sana.quintero","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"svc-analytics","account_type":"service","team":"security","owner":"sana.moreau","credential_changes":[{"at":"2026-07-03T21:36:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-auth","account_type":"service","team":"security","owner":"hana.zhou","credential_changes":[{"at":"2026-04-28T10:21:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-16T22:34:00Z","kind":"handover","note":"CHG-36094: owner zara.eriksen -> hana.zhou, new key issued"},{"at":"2026-08-22T08:03:00Z","kind":"rotated","note":"CHG-60951: Rotate svc-auth password on payroll-prod-01"},{"at":"2026-08-25T06:11:00Z","kind":"rotated","note":"CHG-53936: Rotate svc-auth password on web-staging-02"}]}
+{"name":"svc-backup","account_type":"service","team":"security","owner":"sana.moreau","credential_changes":[{"at":"2026-06-04T08:44:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-06T02:12:00Z","kind":"rotated","note":"CHG-56401: Rotate svc-backup password on files-prod-03"},{"at":"2026-08-22T22:47:00Z","kind":"rotated","note":"CHG-68304: scheduled rotation"},{"at":"2026-08-26T00:17:00Z","kind":"rotated","note":"CHG-40508: Rotate svc-backup password on db-prod-01"},{"at":"2026-08-30T00:04:00Z","kind":"handover","note":"CHG-80322: Hand over svc-backup to chen.okafor"}]}
+{"name":"svc-billing","account_type":"service","team":"platform","owner":"imani.quintero","credential_changes":[{"at":"2026-04-26T21:35:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-04T13:44:00Z","kind":"rotated","note":"CHG-99567: Rotate svc-billing password on db-prod-04"},{"at":"2026-08-07T06:12:00Z","kind":"handover","note":"CHG-21638: Hand over svc-billing to olga.nakamura"}]}
+{"name":"svc-cache","account_type":"service","team":"security","owner":"sana.moreau","credential_changes":[{"at":"2026-06-11T11:11:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-13T15:22:00Z","kind":"rotated","note":"CHG-83342: Rotate svc-cache password on jump-prod-01"},{"at":"2026-08-25T13:04:00Z","kind":"rotated","note":"CHG-36239: Rotate svc-cache password on db-staging-02"},{"at":"2026-08-28T10:01:00Z","kind":"rotated","note":"CHG-19898: Rotate svc-cache password on build-prod-01"},{"at":"2026-08-29T11:22:00Z","kind":"rotated","note":"CHG-38337: Rotate svc-cache password on web-prod-02"}]}
+{"name":"svc-ci","account_type":"service","team":"platform","owner":"rafael.ncube","credential_changes":[{"at":"2026-07-13T11:24:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-compliance","account_type":"scanner","team":"security","owner":"maya.gupta","credential_changes":[{"at":"2026-06-29T10:40:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-deploy","account_type":"service","team":"platform","owner":"liam.yilmaz","credential_changes":[{"at":"2026-07-05T05:09:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-discovery","account_type":"scanner","team":"security","owner":"sana.moreau","credential_changes":[{"at":"2026-05-07T23:38:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-etl","account_type":"service","team":"platform","owner":"gustavo.moreau","credential_changes":[{"at":"2026-05-15T08:11:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-fileshare","account_type":"service","team":"data","owner":"farah.rossi","credential_changes":[{"at":"2026-06-29T23:58:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-06T05:17:00Z","kind":"rotated","note":"CHG-97729: Rotate svc-fileshare password on monitor-prod-02"},{"at":"2026-08-18T10:22:00Z","kind":"rotated","note":"CHG-86379: scheduled rotation"}]}
+{"name":"svc-gateway","account_type":"service","team":"data","owner":"uma.ncube","credential_changes":[{"at":"2026-07-07T17:19:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-07T13:28:00Z","kind":"rotated","note":"CHG-35824: Rotate svc-gateway password on db-prod-01"},{"at":"2026-08-15T02:23:00Z","kind":"handover","note":"CHG-47093: owner farah.rossi -> uma.ncube, new key issued"}]}
+{"name":"svc-hr-export","account_type":"service","team":"it-ops","owner":"sana.moreau","credential_changes":[{"at":"2026-05-21T17:57:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-15T12:16:00Z","kind":"rotated","note":"CHG-40552: Rotate svc-hr-export password on api-prod-03"},{"at":"2026-08-22T17:23:00Z","kind":"handover","note":"CHG-31255: owner dana.oliveira -> sana.moreau, new key issued"}]}
+{"name":"svc-invoices","account_type":"service","team":"platform","owner":"rafael.ncube","credential_changes":[{"at":"2026-06-19T19:05:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-05T16:13:00Z","kind":"rotated","note":"CHG-69027: Rotate svc-invoices password on jump-prod-01"},{"at":"2026-08-18T22:41:00Z","kind":"handover","note":"CHG-40516: Hand over svc-invoices to dev.adeyemi"},{"at":"2026-08-23T12:15:00Z","kind":"rotated","note":"CHG-35896: scheduled rotation"}]}
+{"name":"svc-ledger","account_type":"service","team":"platform","owner":"sana.quintero","credential_changes":[{"at":"2026-06-27T22:15:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-05T07:59:00Z","kind":"rotated","note":"CHG-92031: Rotate svc-ledger password on api-staging-02"},{"at":"2026-08-06T08:31:00Z","kind":"rotated","note":"CHG-60532: Rotate svc-ledger password on payroll-prod-02"},{"at":"2026-08-18T20:53:00Z","kind":"rotated","note":"CHG-44424: scheduled rotation"}]}
+{"name":"svc-logship","account_type":"service","team":"platform","owner":"hana.wojcik","credential_changes":[{"at":"2026-06-10T14:20:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-05T16:06:00Z","kind":"rotated","note":"CHG-96266: Rotate svc-logship password on db-prod-01"},{"at":"2026-08-08T13:44:00Z","kind":"handover","note":"CHG-65800: owner amara.nakamura -> hana.wojcik, new key issued"}]}
+{"name":"svc-mailer","account_type":"service","team":"finance-apps","owner":"dev.adeyemi","credential_changes":[{"at":"2026-06-24T08:54:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"svc-monitoring","account_type":"service","team":"it-ops","owner":"uma.adeyemi","credential_changes":[{"at":"2026-06-28T09:44:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-05T03:02:00Z","kind":"rotated","note":"CHG-25960: Rotate svc-monitoring password on db-prod-02"},{"at":"2026-08-14T11:44:00Z","kind":"rotated","note":"CHG-33533: Rotate svc-monitoring password on mail-prod-02"},{"at":"2026-08-29T06:16:00Z","kind":"handover","note":"CHG-70794: owner tomas.yilmaz -> uma.adeyemi, new key issued"}]}
+{"name":"svc-payments","account_type":"service","team":"security","owner":"uma.ncube","credential_changes":[{"at":"2026-04-10T04:29:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-04T08:37:00Z","kind":"handover","note":"CHG-67446: Hand over svc-payments to dev.zhou"},{"at":"2026-08-12T16:32:00Z","kind":"rotated","note":"CHG-12950: scheduled rotation"}]}
+{"name":"svc-radius","account_type":"service","team":"platform","owner":"imani.quintero","credential_changes":[{"at":"2026-06-01T19:05:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-12T08:20:00Z","kind":"handover","note":"CHG-99993: Hand over svc-radius to dev.adeyemi"}]}
+{"name":"svc-replica","account_type":"service","team":"finance-apps","owner":"dev.zhou","credential_changes":[{"at":"2026-04-27T08:08:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-04T15:04:00Z","kind":"rotated","note":"CHG-32842: scheduled rotation"},{"at":"2026-08-14T23:32:00Z","kind":"rotated","note":"CHG-64483: Rotate svc-replica password on monitor-prod-01"},{"at":"2026-08-18T07:34:00Z","kind":"rotated","note":"CHG-85803: Rotate svc-replica password on web-staging-01"},{"at":"2026-08-22T10:36:00Z","kind":"rotated","note":"CHG-57061: Rotate svc-replica password on db-prod-02"}]}
+{"name":"svc-reporting","account_type":"service","team":"payments","owner":"gustavo.moreau","credential_changes":[{"at":"2026-07-12T05:03:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-04T12:59:00Z","kind":"handover","note":"CHG-76867: owner bilal.yilmaz -> gustavo.moreau, new key issued"},{"at":"2026-08-13T20:05:00Z","kind":"handover","note":"CHG-44121: Hand over svc-reporting to amara.nakamura"}]}
+{"name":"svc-search","account_type":"service","team":"it-ops","owner":"ximena.reyes","credential_changes":[{"at":"2026-05-03T10:06:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-06T01:40:00Z","kind":"handover","note":"CHG-39683: Hand over svc-search to zara.eriksen"},{"at":"2026-08-07T07:18:00Z","kind":"rotated","note":"CHG-87779: Rotate svc-search password on web-staging-03"},{"at":"2026-08-19T03:14:00Z","kind":"handover","note":"CHG-20802: owner dana.oliveira -> ximena.reyes, new key issued"}]}
+{"name":"svc-sync","account_type":"service","team":"payments","owner":"clara.yilmaz","credential_changes":[{"at":"2026-04-05T23:59:00Z","kind":"rotated","note":"Scheduled 90-day rotation"},{"at":"2026-08-07T08:36:00Z","kind":"handover","note":"CHG-16218: owner ximena.petrov -> clara.yilmaz, new key issued"},{"at":"2026-08-13T19:06:00Z","kind":"rotated","note":"CHG-60792: Rotate svc-sync password on mail-prod-02"}]}
+{"name":"svc-vulnscan","account_type":"scanner","team":"security","owner":"uma.adeyemi","credential_changes":[{"at":"2026-05-23T04:37:00Z","kind":"rotated","note":"Scheduled 90-day rotation"}]}
+{"name":"tomas.yilmaz","account_type":"human","team":"it-ops","owner":null,"credential_changes":[]}
+{"name":"uma.adeyemi","account_type":"human","team":"security","owner":null,"credential_changes":[]}
+{"name":"uma.ncube","account_type":"human","team":"security","owner":null,"credential_changes":[]}
+{"name":"uma.petrov","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"victor.mensah","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"ximena.petrov","account_type":"human","team":"payments","owner":null,"credential_changes":[]}
+{"name":"ximena.reyes","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"ximena.yilmaz","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"yusuf.mensah","account_type":"human","team":"web","owner":null,"credential_changes":[]}
+{"name":"yusuf.rossi","account_type":"human","team":"platform","owner":null,"credential_changes":[]}
+{"name":"zara.eriksen","account_type":"human","team":"security","owner":null,"credential_changes":[]}
+{"name":"zara.quintero","account_type":"human","team":"finance-apps","owner":null,"credential_changes":[]}
