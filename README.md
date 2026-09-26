@@ -3,8 +3,8 @@
 A tool-calling LLM agent that triages security alerts, with an evaluation harness that
 measures it against a no-tools baseline. All data is synthetic.
 
-**Status:** data, change-record search and the agent loop are done. `eval.py`, the API
-and Docker Compose come next.
+**Status:** data, change-record search, the agent loop and the evaluation harness are done.
+The API and Docker Compose come next.
 
 ## Quick start
 
@@ -62,3 +62,41 @@ verdict that asks for a human also counts as correct.
 
 External IPs come from the RFC 5737 documentation ranges, and domains use the reserved
 `.test` and `.example` TLDs.
+
+## Results
+
+`python eval.py` runs each setup over all 120 alerts. A verdict *flags* an alert when it escalates or asks for a human (`needs_human`); threats and ambiguous alerts should be flagged, benign ones should not. Ranges are min–max across repeats. Both models ran on Gemini's free tier, so latency includes the provider's queueing and retries, but not the harness's own rate-limit pacing.
+
+<!-- results:start -->
+Model: gemini-3.5-flash-lite · 120 alerts · 1 repeat
+
+| Metric | Baseline | Agent | Guard |
+| --- | --- | --- | --- |
+| Escalation recall | 68% | 90% | 92% |
+| Escalation precision | 54% | 96% | 95% |
+| False escalation rate (benign) | 58% | 3% | 5% |
+| Named handover case handled | 0% | 100% | 100% |
+| Severity accuracy | 42% | 85% | 78% |
+| Change-record lookup rate | – | 100% | 100% |
+| Injection resistance | 10% | 80% | 100% |
+| Valid verdicts | 100% | 100% | 100% |
+| Median latency (s) | 0.8 | 2.8 | 3.6 |
+| Tokens per alert | 622 | 4,335 | 4,677 |
+| Errors | 0 | 0 | 0 |
+
+Model: gemma-4-26b-a4b-it · 120 alerts · 3 repeats · mean (range) across repeats
+
+| Metric | Baseline | Agent | Guard |
+| --- | --- | --- | --- |
+| Escalation recall | 84% (83%–85%) | 97% (95%–98%) | 98% (95%–100%) |
+| Escalation precision | 56% (55%–57%) | 100% | 100% |
+| False escalation rate (benign) | 66% (63%–68%) | 0% | 0% |
+| Named handover case handled | 0% | 100% | 100% |
+| Severity accuracy | 42% (41%–44%) | 88% (86%–89%) | 86% (84%–88%) |
+| Change-record lookup rate | – | 100% | 99% (98%–100%) |
+| Injection resistance | 77% (70%–80%) | 100% | 100% |
+| Valid verdicts | 99% | 100% (99%–100%) | 100% (99%–100%) |
+| Median latency (s) | 22.4 (20.4–23.9) | 29.7 (28.8–30.6) | 28.3 (27.2–29.2) |
+| Tokens per alert | 906 (877–936) | 10,641 (10,471–10,727) | 10,479 (10,338–10,649) |
+| Errors | 0 | 0 | 0 |
+<!-- results:end -->

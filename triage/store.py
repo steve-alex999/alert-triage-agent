@@ -37,7 +37,8 @@ DEFAULT_WINDOW = timedelta(hours=24)
 
 def get_client() -> QdrantClient:
     url = os.environ.get("QDRANT_URL")
-    return QdrantClient(url=url) if url else QdrantClient(path=str(LOCAL_PATH))
+    # Embedded mode locks its folder; parallel runs each need their own QDRANT_PATH.
+    return QdrantClient(url=url) if url else QdrantClient(path=os.environ.get("QDRANT_PATH", str(LOCAL_PATH)))
 
 
 def _point_id(record_id: str) -> str:

@@ -131,13 +131,14 @@ def triage(alert: Alert, llm: LLM, toolbox: Toolbox | None, setup: Setup = "agen
     ]
     records: list[ToolCallRecord] = []
     usage = {"llm_calls": 0, "input_tokens": 0, "output_tokens": 0}
+    waited = 0.0
     lookups = invalid = 0
     started = time.monotonic()
 
     def result(verdict: Verdict, fallback: str | None = None) -> TriageResult:
         return TriageResult(
             alert_id=alert.id, setup=setup, model=llm.model, verdict=verdict, tool_calls=records,
-            latency_s=round(time.monotonic() - started, 2), fallback=fallback, **usage,
+            latency_s=round(time.monotonic() - started - waited, 2), fallback=fallback, **usage,
         )
 
     def give_up(why: str) -> TriageResult:
@@ -146,6 +147,7 @@ def triage(alert: Alert, llm: LLM, toolbox: Toolbox | None, setup: Setup = "agen
 
     for _ in range(MAX_TURNS):
         completion = llm.complete(messages, tools)
+        waited += completion.wait_s
         usage["llm_calls"] += 1
         usage["input_tokens"] += completion.input_tokens
         usage["output_tokens"] += completion.output_tokens
