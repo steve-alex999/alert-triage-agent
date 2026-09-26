@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e '.[dev]'
+      - name: Tests (offline, scripted model)
+        run: pytest -q
+
+  smoke-eval:
+    # A 6-alert agent run against the real model. Skipped unless the repo has a GEMINI_API_KEY secret.
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/fastembed
+          key: fastembed-bge-small-en-v1.5
+      - run: pip install -e .
+      - name: Smoke eval
+        if: env.GEMINI_API_KEY != ''
+        run: python eval.py --limit 6 --setups agent --out results/ci-smoke.jsonl
+      - name: No API key secret
+        if: env.GEMINI_API_KEY == ''
+        run: echo "Add a GEMINI_API_KEY repository secret to run the smoke eval."
