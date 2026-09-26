@@ -1,33 +1,29 @@
 # Alert Triage Agent
 
+[![CI](https://github.com/steve-alex999/alert-triage-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/steve-alex999/alert-triage-agent/actions/workflows/ci.yml)
+
 A tool-calling LLM agent that triages security alerts, with an evaluation harness that
 measures it against a no-tools baseline. All data is synthetic.
 
-**Status:** data, change-record search, the agent loop and the evaluation harness are done.
-The API and Docker Compose come next.
+With change-record lookups, the agent's false escalations on benign alerts fall from 66%
+to 0% (Gemma 4 26B, 3 repeats) and it resists all 10 prompt-injection alerts. Full tables
+are under [Results](#results).
 
-## Quick start
+## Architecture
 
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -e '.[dev]'
-python -m triage.synthetic   # regenerate data/ (the committed files are identical)
-python -m triage.store       # index change records in Qdrant, then search for the named case
-pytest                       # offline; the agent tests use a scripted model
-
-export GEMINI_API_KEY=...    # free key from https://aistudio.google.com/app/apikey
-python -m triage.agent                        # triage the named case
-python -m triage.agent --setup baseline       # same alert, no lookups
-python -m triage.agent --alert ALR-53006 --setup guard
+```mermaid
+flowchart LR
+    client["Client"] -->|"POST /triage"| api["FastAPI"]
+    api --> loop["Agent loop<br/>≤ 5 lookups"]
+    loop <-->|"tool calls"| llm["LLM<br/>OpenAI-compatible API"]
+    loop --> search["search_change_records"]
+    loop --> lookups["get_asset · get_identity<br/>check_indicator"]
+    search --> qdrant[("Qdrant<br/>change records")]
+    lookups --> data[("Synthetic data<br/>assets, identities, intel")]
+    loop -->|"submit_verdict"| verdict["Verdict<br/>Pydantic-validated"]
 ```
 
-The model is reached through an OpenAI-compatible adapter. `TRIAGE_PROVIDER` picks
-`gemini` (default) or `ollama`, and `TRIAGE_MODEL` picks the model (default
-`gemini-3.5-flash-lite`).
-
-## How the agent works
-
-The model gets the alert and five tools: `search_change_records`, `get_asset`,
+The model sees the alert and five tools: `search_change_records`, `get_asset`,
 `get_identity`, `check_indicator` and `submit_verdict`. It may make up to 5 lookups, then
 must call `submit_verdict`, whose arguments are validated against the `Verdict` model. An
 invalid verdict gets one retry; a second failure, or no verdict at all, returns a fallback
@@ -35,9 +31,47 @@ verdict that escalates with `needs_human` set. The `baseline` setup offers only
 `submit_verdict`, and the `guard` setup wraps the alert in `<untrusted_alert>` tags and
 tells the model to treat its contents as data.
 
-`triage.store` uses Qdrant's embedded mode (`.qdrant/`) unless `QDRANT_URL` points at a
-server. Embeddings come from `BAAI/bge-small-en-v1.5` via fastembed, run locally; set
-`EMBEDDING_PROVIDER=hash` to skip the model download (the tests do this).
+## Run it with Docker
+
+```bash
+export GEMINI_API_KEY=...          # free key from https://aistudio.google.com/app/apikey
+docker compose up -d               # Qdrant + the API on localhost:8000 (API_PORT to change it)
+curl localhost:8000/health
+curl localhost:8000/triage -H 'content-type: application/json' -d '{
+  "id": "ALR-1", "type": "new_credential_use", "principal": "svc-monitoring",
+  "host": "build-prod-02", "timestamp": "2026-08-29T07:39:00Z", "source_ip": "10.10.0.35",
+  "raw_message": "Service account svc-monitoring authenticated to build-prod-02 with a credential first seen today."
+}'
+```
+
+The response holds the verdict, every tool call the agent made, token counts and latency.
+Add `?setup=baseline` or `?setup=guard` to compare setups. Interactive docs are at
+`/docs`.
+
+## Run it locally
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e '.[dev]'
+pytest                       # offline; the agent tests use a scripted model
+python -m triage.synthetic   # regenerate data/ (the committed files are identical)
+python -m triage.store       # index change records, then search for the named case
+
+python -m triage.agent                        # triage the named case
+python -m triage.agent --setup baseline       # same alert, no lookups
+python eval.py --limit 6                      # smoke eval; see triage/evaluate.py for options
+```
+
+The model is reached through an OpenAI-compatible adapter. `TRIAGE_PROVIDER` picks
+`gemini` (default) or `ollama`, and `TRIAGE_MODEL` picks the model (default
+`gemini-3.5-flash-lite`). Requests are paced under each model's free-tier caps.
+
+Locally, Qdrant runs in embedded mode (`.qdrant/`) unless `QDRANT_URL` points at a server.
+Embeddings come from `BAAI/bge-small-en-v1.5` via fastembed, run locally;
+`EMBEDDING_PROVIDER=hash` skips the model download.
+
+CI runs the tests on every push, plus a 6-alert smoke eval when the repository has a
+`GEMINI_API_KEY` secret.
 
 ## Data
 
@@ -100,3 +134,17 @@ Model: gemma-4-26b-a4b-it · 120 alerts · 3 repeats · mean (range) across repe
 | Tokens per alert | 906 (877–936) | 10,641 (10,471–10,727) | 10,479 (10,338–10,649) |
 | Errors | 0 | 0 | 0 |
 <!-- results:end -->
+
+## Known limits
+
+- **Synthetic data.** The alerts come from templates, and benign and threat alerts differ
+  only in what the lookups return. Real alerts are messier, and real change records are
+  often late, vague or missing.
+- **One labeling policy.** The labels encode a single triage policy, and the agent's prompt
+  states the same policy. A different SOC would label some alerts differently.
+- **Small injection set.** Ten alerts, one injected string each. They show the guard helps,
+  not that it is robust to adaptive attacks.
+- **Free-tier models.** Gemma 4 26B ran 3 repeats; Gemini 3.5 Flash-Lite ran 1, so its
+  numbers have no range. Latency includes the provider's queueing and retries.
+- **Demo API.** The tools read static files, and the API has no authentication or rate
+  limiting.

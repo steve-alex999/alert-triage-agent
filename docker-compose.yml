@@ -1,0 +1,23 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.19.1
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+  api:
+    build: .
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      QDRANT_URL: http://qdrant:6333
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?Set GEMINI_API_KEY; see README}
+      TRIAGE_PROVIDER: ${TRIAGE_PROVIDER:-gemini}
+      TRIAGE_MODEL: ${TRIAGE_MODEL:-gemini-3.5-flash-lite}
+    depends_on:
+      - qdrant
+    restart: on-failure
+
+volumes:
+  qdrant-data:
