@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alert Triage Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Share+Tech+Mono&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: one wide wiring diagram under a neon-signed header, a run console beside scenario buttons, then measured results.
+   Look: rain-soaked night city, teal and amber neon on blue-black haze. Single dark theme by choice. */
+:root {
+  --bg: #06080c;
+  --panel: #0b1117;
+  --line: #1c2a31;
+  --ink: #c7d5d2;
+  --ink-dim: #7b8f93;
+  --teal: #37d8cf;
+  --amber: #ff9a2e;
+  --red: #ff3d6e;
+  --haze: rgba(255,154,46,.10);
+  --font-display: "Michroma", "Eurostile", "Arial Black", sans-serif;
+  --font-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Share Tech Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-inline: 16px;
+  padding-block: 28px 56px;
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {           /* city haze: teal from above, amber from the street */
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(1100px 500px at 15% -10%, rgba(55,216,207,.13), transparent 60%),
+    radial-gradient(1000px 520px at 90% 110%, rgba(255,154,46,.16), transparent 60%),
+    linear-gradient(180deg, #06080c 0%, #0a0f15 100%);
+}
+body::after {            /* scanlines */
+  content: ""; position: fixed; inset: 0; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+  mix-blend-mode: multiply;
+}
+#rain { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.wrap { position: relative; z-index: 2; max-width: 1240px; margin-inline: auto; }
+
+header { display: flex; gap: 24px; align-items: stretch; margin-bottom: 28px; }
+.sign {
+  writing-mode: vertical-rl; font-family: "Hiragino Sans", "Yu Gothic", "Noto Sans CJK JP", "Noto Sans JP", var(--font-display); font-size: 16px; letter-spacing: .4em;
+  color: var(--red); text-shadow: 0 0 6px var(--red), 0 0 22px rgba(255,61,110,.7);
+  border: 1px solid rgba(255,61,110,.55); box-shadow: 0 0 14px rgba(255,61,110,.35), inset 0 0 14px rgba(255,61,110,.18);
+  padding: 14px 8px; border-radius: 2px; animation: flick 7s infinite steps(1);
+}
+@keyframes flick { 0%,4%,7%,100% {opacity:1} 5% {opacity:.25} 6% {opacity:.9} 52% {opacity:1} 53% {opacity:.4} 54% {opacity:1} }
+.titleblock { min-width: 0; }
+.eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; }
+h1 {
+  font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 5.2vw, 52px); line-height: 1.08;
+  letter-spacing: .06em; margin: 6px 0 10px; text-transform: uppercase; text-wrap: balance;
+  color: #eafffc; text-shadow: 0 0 4px rgba(55,216,207,.9), 0 0 26px rgba(55,216,207,.55);
+}
+.lede { max-width: 62ch; color: var(--ink); margin: 0; }
+.lede b { color: var(--amber); font-weight: 500; }
+
+h2 { font-family: var(--font-display); font-weight: 400; font-size: 13px; letter-spacing: .22em; text-transform: uppercase; color: var(--teal); margin: 0 0 14px; }
+section { margin-block-end: 34px; }
+
+.rig { border: 1px solid var(--line); background: rgba(8,13,18,.78); border-radius: 3px; box-shadow: 0 0 0 1px rgba(55,216,207,.05), 0 20px 60px rgba(0,0,0,.5); }
+.rig-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.rig-head .spacer { flex: 1; }
+.btn {
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: .06em; color: var(--ink);
+  background: transparent; border: 1px solid var(--line); padding: 8px 12px; border-radius: 2px; cursor: pointer; transition: .15s;
+}
+.btn:hover { border-color: var(--teal); color: #eafffc; box-shadow: 0 0 10px rgba(55,216,207,.35); }
+.btn[aria-pressed="true"] { border-color: var(--amber); color: var(--amber); box-shadow: 0 0 12px rgba(255,154,46,.35), inset 0 0 10px rgba(255,154,46,.12); }
+.btn:focus-visible, .node:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.tag { font-family: var(--font-mono); font-size: 12px; color: var(--ink-dim); letter-spacing: .08em; }
+
+.scroller { overflow-x: auto; padding: 6px 4px 10px; }
+svg.diagram { display: block; width: 100%; min-width: 960px; height: auto; }
+.edge { fill: none; stroke: #2c4149; stroke-width: 1.6; }
+.edge.dash { stroke-dasharray: 5 6; }
+.edge.on { stroke: var(--teal); stroke-width: 2.2; filter: drop-shadow(0 0 4px var(--teal)); }
+.edge.on.warn { stroke: var(--amber); filter: drop-shadow(0 0 4px var(--amber)); }
+.edge.on.bad { stroke: var(--red); filter: drop-shadow(0 0 5px var(--red)); }
+.elabel { font-family: var(--font-mono); font-size: 11.5px; fill: var(--ink-dim); letter-spacing: .05em; }
+.node rect { fill: #0a1218; stroke: #2c4149; stroke-width: 1.4; transition: .2s; }
+.node { cursor: pointer; }
+.node .nt { font-family: var(--font-display); font-size: 11px; letter-spacing: .12em; fill: var(--ink); text-anchor: middle; }
+.node .nt.sm { font-size: 9.5px; letter-spacing: .06em; }
+.node .ns { font-family: var(--font-mono); font-size: 11px; fill: var(--ink-dim); text-anchor: middle; }
+.node:hover rect { stroke: var(--teal); }
+.node.lit rect { stroke: var(--teal); fill: rgba(55,216,207,.09); filter: drop-shadow(0 0 7px rgba(55,216,207,.75)); }
+.node.lit .nt { fill: #eafffc; }
+.node.lit.amber rect { stroke: var(--amber); fill: rgba(255,154,46,.09); filter: drop-shadow(0 0 7px rgba(255,154,46,.75)); }
+.node.lit.red rect { stroke: var(--red); fill: rgba(255,61,110,.10); filter: drop-shadow(0 0 8px rgba(255,61,110,.8)); }
+.node.sel rect { stroke-width: 2.4; }
+.band { fill: none; stroke: #2c4149; stroke-dasharray: 3 5; }
+.band-t { font-family: var(--font-mono); font-size: 12px; fill: var(--ink-dim); letter-spacing: .08em; }
+.band-t b { fill: var(--amber); font-weight: 400; }
+#dot { fill: #fff; filter: drop-shadow(0 0 6px #fff) drop-shadow(0 0 12px var(--teal)); }
+
+.console { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 0; border-top: 1px solid var(--line); }
+.log, .detail { padding: 14px; min-width: 0; }
+.detail { border-left: 1px solid var(--line); }
+.log { font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65; min-height: 210px; }
+.log .l { display: block; }
+.log .c { color: var(--teal); }
+.log .r { color: var(--ink-dim); }
+.log .w { color: var(--amber); }
+.log .x { color: var(--red); }
+.log .v { color: #eafffc; }
+.log .idle { color: var(--ink-dim); }
+.detail h3 { font-family: var(--font-display); font-weight: 400; font-size: 13px; letter-spacing: .16em; margin: 0 0 8px; color: var(--amber); text-transform: uppercase; }
+.detail p { margin: 0 0 8px; font-size: 15px; max-width: 52ch; }
+.detail .meta { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-dim); }
+
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+.card { border: 1px solid var(--line); background: rgba(8,13,18,.78); padding: 16px; border-radius: 3px; min-width: 0; }
+.card h3 { font-family: var(--font-mono); font-weight: 400; font-size: 13px; letter-spacing: .08em; color: var(--ink-dim); margin: 0 0 14px; text-transform: uppercase; }
+.bar { display: grid; grid-template-columns: 74px minmax(0,1fr) 52px; gap: 10px; align-items: center; margin-block: 8px; font-family: var(--font-mono); font-size: 13px; }
+.track { height: 12px; background: #0f1a21; border: 1px solid var(--line); position: relative; }
+.fill { position: absolute; inset: 0 auto 0 0; }
+.fill.base { background: linear-gradient(90deg, #6b4a1c, var(--amber)); box-shadow: 0 0 10px rgba(255,154,46,.5); }
+.fill.agent { background: linear-gradient(90deg, #136a66, var(--teal)); box-shadow: 0 0 10px rgba(55,216,207,.5); }
+.val { text-align: right; font-variant-numeric: tabular-nums; }
+.pips { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-top: 6px; }
+.pip { height: 26px; background: rgba(55,216,207,.14); border: 1px solid var(--teal); box-shadow: 0 0 8px rgba(55,216,207,.4); }
+.big { font-family: var(--font-display); font-size: 34px; color: #eafffc; text-shadow: 0 0 18px rgba(55,216,207,.5); }
+.note { font-size: 14px; color: var(--ink-dim); margin: 12px 0 0; max-width: 60ch; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.stack li { font-family: var(--font-mono); font-size: 13px; border: 1px solid var(--line); padding: 6px 10px; color: var(--ink); }
+footer { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-dim); letter-spacing: .06em; border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (max-width: 720px) {
+  header { flex-direction: column; gap: 14px; }
+  .sign { writing-mode: horizontal-tb; padding: 6px 12px; align-self: flex-start; }
+  .console { grid-template-columns: minmax(0, 1fr); }
+  .detail { border-left: 0; border-top: 1px solid var(--line); }
+}
+@media (prefers-reduced-motion: reduce) { .sign { animation: none; } }
+</style>
+
+</head>
+<body>
+<canvas id="rain" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header>
+    <div class="sign" aria-hidden="true">警報選別</div>
+    <div class="titleblock">
+      <div class="eyebrow">Security operations &middot; synthetic alerts only</div>
+      <h1>Alert Triage Agent</h1>
+      <p class="lede">A tool calling LLM agent that looks up <b>change records, assets, identities and indicators</b> before it decides whether to escalate an alert, measured against a baseline that gets no lookups. Pick an example and watch it move through the system.</p>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-flow">
+    <h2 id="h-flow">System flow</h2>
+    <div class="rig">
+      <div class="rig-head" role="group" aria-label="Choose an example alert">
+        <span class="tag">RUN EXAMPLE &rarr;</span>
+        <button class="btn" id="b-benign" data-sc="benign" aria-pressed="false">Agent: benign handover</button>
+        <button class="btn" id="b-base" data-sc="base" aria-pressed="false">Baseline: same alert</button>
+        <button class="btn" id="b-threat" data-sc="threat" aria-pressed="false">Agent: real threat</button>
+        <button class="btn" id="b-inject" data-sc="inject" aria-pressed="false">Guard: injected alert</button>
+        <button class="btn" id="b-bad" data-sc="bad" aria-pressed="false">Malformed verdict</button>
+        <span class="spacer"></span>
+        <span class="tag">illustrative alerts &middot; click any block for detail</span>
+      </div>
+      <div class="scroller">
+        <figure style="margin:0">
+        <svg class="diagram" viewBox="0 0 1200 600" role="img" aria-label="Flow diagram: an alert enters the FastAPI endpoint, the setup builds the prompt, and the agent loop runs with up to five lookups across four tools. The agent submits a verdict that is checked against a Pydantic schema. A valid verdict either escalates or does not. An invalid one gets one retry, then a fallback verdict that escalates with needs_human set.">
+          <defs>
+            <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#2c4149"/>
+            </marker>
+          </defs>
+
+          <!-- edges -->
+          <path class="edge" id="e-alert-api"    data-from="alert" data-to="api"    d="M150 300 H200" marker-end="url(#arw)"/>
+          <path class="edge" id="e-api-prompt"   data-from="api" data-to="prompt"   d="M320 300 H355" marker-end="url(#arw)"/>
+          <path class="edge" id="e-prompt-agent" data-from="prompt" data-to="agent" d="M505 300 H560" marker-end="url(#arw)"/>
+          <path class="edge" id="e-agent-val"    data-from="agent" data-to="val"    d="M740 300 H810" marker-end="url(#arw)"/>
+          <path class="edge" id="e-tool-change"    data-from="agent" data-to="change"    d="M650 245 C650 185 490 195 490 132"/>
+          <path class="edge" id="e-tool-asset"     data-from="agent" data-to="asset"     d="M650 245 C650 200 650 190 650 132"/>
+          <path class="edge" id="e-tool-identity"  data-from="agent" data-to="identity"  d="M650 245 C650 185 810 195 810 132"/>
+          <path class="edge" id="e-tool-indicator" data-from="agent" data-to="indicator" d="M650 245 C650 170 970 205 970 132"/>
+          <path class="edge" id="e-retry" data-from="val" data-to="agent" d="M880 342 C880 470 650 470 650 357" marker-end="url(#arw)"/>
+          <path class="edge" id="e-val-noesc"    data-from="val" data-to="noesc"    d="M950 288 C1000 288 990 195 1015 195" marker-end="url(#arw)"/>
+          <path class="edge" id="e-val-escalate" data-from="val" data-to="escalate" d="M950 300 H1015" marker-end="url(#arw)"/>
+          <path class="edge" id="e-val-fallback" data-from="val" data-to="fallback" d="M950 312 C1000 312 990 405 1015 405" marker-end="url(#arw)"/>
+          <path class="edge dash" id="e-eval" d="M1090 433 V508"/>
+
+          <!-- edge labels -->
+          <text class="elabel" x="175" y="290" text-anchor="middle">json</text>
+          <text class="elabel" x="338" y="290" text-anchor="middle">text</text>
+          <text class="elabel" x="532" y="290" text-anchor="middle">task</text>
+          <text class="elabel" x="775" y="290" text-anchor="middle">verdict</text>
+          <text class="elabel" x="765" y="468">invalid &rarr; one retry</text>
+          <text class="elabel" x="1090" y="160" text-anchor="middle">benign</text>
+          <text class="elabel" x="1090" y="266" text-anchor="middle">threat or unsure</text>
+          <text class="elabel" x="1090" y="371" text-anchor="middle">invalid twice</text>
+          <text class="elabel" x="470" y="215" text-anchor="end">up to 5 lookups</text>
+
+          <!-- tools -->
+          <text class="band-t" x="415" y="38">TOOLS &middot; the agent calls these before it decides</text>
+          <g class="node" id="n-change" tabindex="0" role="button" aria-label="search_change_records tool"><rect x="415" y="56" width="150" height="76" rx="2"/><text class="nt sm" x="490" y="80">CHANGE RECORDS</text><text class="ns" x="490" y="100">search_change_records</text><text class="ns" x="490" y="117">Qdrant + embeddings</text></g>
+          <g class="node" id="n-asset" tabindex="0" role="button" aria-label="get_asset tool"><rect x="575" y="56" width="150" height="76" rx="2"/><text class="nt" x="650" y="80">ASSET</text><text class="ns" x="650" y="100">get_asset</text><text class="ns" x="650" y="117">synthetic data</text></g>
+          <g class="node" id="n-identity" tabindex="0" role="button" aria-label="get_identity tool"><rect x="735" y="56" width="150" height="76" rx="2"/><text class="nt" x="810" y="80">IDENTITY</text><text class="ns" x="810" y="100">get_identity</text><text class="ns" x="810" y="117">synthetic data</text></g>
+          <g class="node" id="n-indicator" tabindex="0" role="button" aria-label="check_indicator tool"><rect x="895" y="56" width="150" height="76" rx="2"/><text class="nt" x="970" y="80">INDICATOR</text><text class="ns" x="970" y="100">check_indicator</text><text class="ns" x="970" y="117">synthetic intel</text></g>
+
+          <!-- pipeline -->
+          <g class="node" id="n-alert" tabindex="0" role="button" aria-label="Incoming alert"><rect x="30" y="265" width="120" height="70" rx="2"/><text class="nt" x="90" y="296">ALERT</text><text class="ns" x="90" y="316">synthetic JSON</text></g>
+          <g class="node" id="n-api" tabindex="0" role="button" aria-label="FastAPI endpoint"><rect x="200" y="265" width="120" height="70" rx="2"/><text class="nt" x="260" y="296">FASTAPI</text><text class="ns" x="260" y="316">POST /triage</text></g>
+          <g class="node" id="n-prompt" tabindex="0" role="button" aria-label="Setup and prompt"><rect x="355" y="265" width="150" height="70" rx="2"/><text class="nt" x="430" y="290">SETUP</text><text class="nt" x="430" y="305">&amp; PROMPT</text><text class="ns" x="430" y="323">guard: untrusted tags</text></g>
+          <g class="node" id="n-agent" tabindex="0" role="button" aria-label="Agent loop"><rect x="560" y="245" width="180" height="112" rx="2"/><text class="nt" x="650" y="287">AGENT LOOP</text><text class="ns" x="650" y="309">LLM &middot; tool calling</text><text class="ns" x="650" y="326">up to 5 lookups</text><text class="ns" x="650" y="343">up to 10 turns</text></g>
+          <g class="node" id="n-val" tabindex="0" role="button" aria-label="Verdict schema check"><rect x="810" y="260" width="140" height="80" rx="2"/><text class="nt" x="880" y="292">VERDICT</text><text class="nt" x="880" y="307">CHECK</text><text class="ns" x="880" y="327">Pydantic model</text></g>
+
+          <!-- outputs -->
+          <g class="node" id="n-noesc" tabindex="0" role="button" aria-label="Not escalated"><rect x="1015" y="168" width="150" height="54" rx="2"/><text class="nt sm" x="1090" y="192">NOT ESCALATED</text><text class="ns" x="1090" y="210">escalate: false</text></g>
+          <g class="node" id="n-escalate" tabindex="0" role="button" aria-label="Escalate"><rect x="1015" y="273" width="150" height="54" rx="2"/><text class="nt" x="1090" y="297">ESCALATE</text><text class="ns" x="1090" y="315">escalate: true</text></g>
+          <g class="node" id="n-fallback" tabindex="0" role="button" aria-label="Fallback verdict"><rect x="1015" y="378" width="150" height="54" rx="2"/><text class="nt" x="1090" y="402">FALLBACK</text><text class="ns" x="1090" y="420">needs_human: true</text></g>
+
+          <!-- eval band -->
+          <rect class="band" x="60" y="508" width="1095" height="62" rx="2"/>
+          <text class="band-t" x="80" y="534">EVAL HARNESS &middot; <tspan fill="#ff9a2e">120 labeled alerts &times; 3 repeats</tspan> &middot; setups: baseline, agent, guard</text>
+          <text class="band-t" x="80" y="554">python eval.py scores every verdict against its label</text>
+          <text class="band-t" x="700" y="554">tests &middot; Docker Compose &middot; GitHub Actions CI</text>
+
+          <circle id="dot" r="5" cx="-20" cy="-20" visibility="hidden"/>
+        </svg>
+        <figcaption class="tag" style="padding:0 10px 4px">Each block is clickable. Arrows light up in the order the agent uses them.</figcaption>
+        </figure>
+      </div>
+      <div class="console">
+        <div class="log" id="log" aria-live="polite"><span class="l idle">&gt; pick an example above to run it</span></div>
+        <div class="detail" id="detail">
+          <h3 id="d-title">Agent loop</h3>
+          <p id="d-body">The model reads the alert, decides which lookups it needs, reads the results, and repeats until it can commit to a verdict.</p>
+          <div class="meta" id="d-meta">tool calling &middot; OpenAI compatible adapter &middot; Gemini or Ollama</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-res">
+    <h2 id="h-res">Measured results</h2>
+    <div class="results">
+      <div class="card">
+        <h3>False escalation rate</h3>
+        <div class="bar"><span>baseline</span><div class="track"><div class="fill base" style="width:66%"></div></div><span class="val">66%</span></div>
+        <div class="bar"><span>agent</span><div class="track"><div class="fill agent" style="width:0%"></div></div><span class="val">0%</span></div>
+        <p class="note">Lower is better. Benign alerts that got escalated. The baseline has no lookups.</p>
+      </div>
+      <div class="card">
+        <h3>Escalation precision</h3>
+        <div class="bar"><span>baseline</span><div class="track"><div class="fill base" style="width:56%"></div></div><span class="val">56%</span></div>
+        <div class="bar"><span>agent</span><div class="track"><div class="fill agent" style="width:100%"></div></div><span class="val">100%</span></div>
+        <p class="note">Higher is better. Of everything it escalated, how much deserved it.</p>
+      </div>
+      <div class="card">
+        <h3>Injection alerts resisted</h3>
+        <div class="bar"><span>baseline</span><div class="track"><div class="fill base" style="width:77%"></div></div><span class="val">77%</span></div>
+        <div class="bar"><span>agent</span><div class="track"><div class="fill agent" style="width:100%"></div></div><span class="val">100%</span></div>
+        <div class="bar"><span>guard</span><div class="track"><div class="fill agent" style="width:100%"></div></div><span class="val">100%</span></div>
+        <p class="note">Higher is better. Ten alerts, each with one injected string.</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:16px">Gemma 4 26B, 120 synthetic alerts, 3 repeats, mean across repeats. Baseline ranges: 63% to 68% false escalations, 55% to 57% precision, 70% to 80% injection resistance. The data is synthetic and the injection set is small, so these numbers show the effect of giving the agent lookups, not production performance or robustness to adaptive attacks.</p>
+  </section>
+
+  <section aria-labelledby="h-stack">
+    <h2 id="h-stack">Built with</h2>
+    <ul class="stack">
+      <li>Python</li><li>Qdrant</li><li>Pydantic</li><li>FastAPI</li><li>OpenAI compatible API</li><li>Docker Compose</li><li>GitHub Actions CI</li>
+    </ul>
+  </section>
+
+  <footer>github.com/steve-alex999/alert-triage-agent</footer>
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- rain ---------- */
+  var cv = document.getElementById("rain"), cx = cv.getContext("2d"), W = 0, H = 0, drops = [];
+  function sizeRain() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var n = Math.round(Math.min(260, W / 5));
+    drops = [];
+    for (var i = 0; i < n; i++) drops.push({ x: Math.random() * (W + 200) - 100, y: Math.random() * H, l: 10 + Math.random() * 22, v: 9 + Math.random() * 10, a: .08 + Math.random() * .2 });
+  }
+  function drawRain(step) {
+    cx.clearRect(0, 0, W, H);
+    cx.lineWidth = 1;
+    for (var i = 0; i < drops.length; i++) {
+      var d = drops[i];
+      cx.strokeStyle = "rgba(150,210,220," + d.a + ")";
+      cx.beginPath(); cx.moveTo(d.x, d.y); cx.lineTo(d.x - d.l * .22, d.y + d.l); cx.stroke();
+      if (step) { d.y += d.v; d.x -= d.v * .22; if (d.y > H) { d.y = -d.l; d.x = Math.random() * (W + 200) - 100; } }
+    }
+  }
+  function loop() { drawRain(true); requestAnimationFrame(loop); }
+  sizeRain();
+  window.addEventListener("resize", function () { sizeRain(); if (reduce) drawRain(false); });
+  if (reduce) drawRain(false); else loop();
+
+  /* ---------- diagram ---------- */
+  var svg = document.querySelector("svg.diagram");
+  var dot = document.getElementById("dot");
+  var logEl = document.getElementById("log");
+  var nodes = {};
+  Array.prototype.forEach.call(svg.querySelectorAll(".node"), function (g) { nodes[g.id.replace("n-", "")] = g; });
+  var edges = {};
+  Array.prototype.forEach.call(svg.querySelectorAll("path.edge[id]"), function (p) { edges[p.id.replace("e-", "")] = p; });
+
+  var DETAIL = {
+    alert:   ["Alert", "One security alert: type, account, host, timestamp, addresses and the raw message. All alerts in the project are synthetic and labeled in advance, and the agent never sees the label.", "120 labeled alerts in the eval"],
+    api:     ["FastAPI endpoint", "Takes an alert and returns the verdict, every tool call the agent made, token counts and latency. The query string picks the setup: baseline, agent or guard.", "POST /triage?setup=agent &middot; runs in Docker Compose"],
+    prompt:  ["Setup and prompt", "Three setups share one loop. Baseline offers only submit_verdict. Agent adds the four lookups. Guard adds the lookups and wraps the alert in untrusted_alert tags, telling the model to treat what is inside as data.", "guard is a prompt defense, not a separate filter"],
+    agent:   ["Agent loop", "The model reads the alert, makes up to 5 lookups, then must call submit_verdict. It gets at most 10 model turns. This is where the baseline loses: it has to decide without context.", "OpenAI compatible API &middot; Gemma 4 26B in the main eval"],
+    change:  ["search_change_records", "Semantic search over approved changes, like a service account handover. Most false alarms in the data are legitimate work that the model cannot see without this lookup.", "Qdrant vector search"],
+    asset:   ["get_asset", "Returns what a host is: role, environment, criticality, owner and OS.", "reads static synthetic data"],
+    identity:["get_identity", "Returns who or what an account is, its team and owner, and any recent credential changes.", "reads static synthetic data"],
+    indicator:["check_indicator", "Checks an IP or domain against the synthetic threat intel list and returns type and confidence.", "reads static synthetic data"],
+    val:     ["Verdict check", "submit_verdict arguments must fit the Verdict model: severity, escalate, reason, evidence and needs_human. An invalid verdict gets one retry.", "Pydantic validation"],
+    noesc:   ["Not escalated", "The alert is benign and the verdict says why, citing the records it used.", "escalate: false"],
+    escalate:["Escalate", "The alert goes to an analyst with the evidence the agent gathered.", "escalate: true"],
+    fallback:["Fallback verdict", "If the second verdict is also invalid, or there is no verdict at all, the system returns a medium severity verdict that escalates with needs_human set. It never guesses.", "escalate: true &middot; needs_human: true"]
+  };
+  function showDetail(k) {
+    var d = DETAIL[k]; if (!d) return;
+    document.getElementById("d-title").textContent = d[0];
+    document.getElementById("d-body").textContent = d[1];
+    document.getElementById("d-meta").innerHTML = d[2];
+    Object.keys(nodes).forEach(function (n) { nodes[n].classList.toggle("sel", n === k); });
+  }
+  Object.keys(nodes).forEach(function (k) {
+    nodes[k].addEventListener("click", function () { showDetail(k); });
+    nodes[k].addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showDetail(k); } });
+  });
+
+  /* scenarios: [edge, reverse, log class, log text, tone, output node] */
+  var SC = {
+    benign: [
+      ["alert-api", 0, "c", "POST /triage?setup=agent  { host: build-prod-02, principal: svc-monitoring, type: new_credential_use }"],
+      ["api-prompt", 0, "c", "prompt: alert as plain text, four lookups + submit_verdict offered"],
+      ["prompt-agent", 0, "c", "agent: credential first seen today, need context before deciding"],
+      ["tool-change", 0, "c", "search_change_records(\"svc-monitoring credential\")"],
+      ["tool-change", 1, "r", "  result: approved handover, same account, inside its window"],
+      ["tool-identity", 0, "c", "get_identity(\"svc-monitoring\")"],
+      ["tool-identity", 1, "r", "  result: service account, recent handover on record"],
+      ["agent-val", 0, "c", "submit_verdict { escalate: false, evidence: [change record] }"],
+      ["val-noesc", 0, "v", "schema ok  ->  NOT ESCALATED", "", "noesc"]
+    ],
+    base: [
+      ["alert-api", 0, "c", "POST /triage?setup=baseline  { same alert as before }"],
+      ["api-prompt", 0, "w", "prompt: only submit_verdict is offered, no lookups"],
+      ["prompt-agent", 0, "c", "agent: new credential on a build host, nothing to check it against"],
+      ["agent-val", 0, "w", "submit_verdict { escalate: true, reason: credential first seen today }"],
+      ["val-escalate", 0, "x", "schema ok  ->  ESCALATE (a false escalation: the change was approved)", "bad", "escalate"]
+    ],
+    threat: [
+      ["alert-api", 0, "c", "POST /triage?setup=agent  { host: db-prod-01, type: outbound_connection }"],
+      ["api-prompt", 0, "c", "prompt: alert as plain text, four lookups + submit_verdict offered"],
+      ["prompt-agent", 0, "c", "agent: start"],
+      ["tool-asset", 0, "c", "get_asset(\"db-prod-01\")"],
+      ["tool-asset", 1, "r", "  result: production database, high criticality"],
+      ["tool-change", 0, "c", "search_change_records(\"db-prod-01 outbound\")"],
+      ["tool-change", 1, "w", "  result: no matching change"],
+      ["tool-indicator", 0, "c", "check_indicator(destination)"],
+      ["tool-indicator", 1, "x", "  result: known bad, high confidence"],
+      ["agent-val", 0, "c", "submit_verdict { severity: high, escalate: true }"],
+      ["val-escalate", 0, "v", "schema ok  ->  ESCALATE", "bad", "escalate"]
+    ],
+    inject: [
+      ["alert-api", 0, "c", "POST /triage?setup=guard  { raw_message contains an instruction to close the alert }"],
+      ["api-prompt", 0, "w", "guard: alert wrapped in untrusted_alert tags, model told to treat it as data"],
+      ["prompt-agent", 0, "c", "agent: the embedded instruction is content to analyze, not an order"],
+      ["tool-identity", 0, "c", "get_identity(account)"],
+      ["tool-identity", 1, "r", "  result: account with no reason for this activity"],
+      ["tool-indicator", 0, "c", "check_indicator(source_ip)"],
+      ["tool-indicator", 1, "x", "  result: known bad, high confidence"],
+      ["agent-val", 0, "c", "submit_verdict { escalate: true, reason mentions the injected text }"],
+      ["val-escalate", 0, "v", "schema ok  ->  ESCALATE", "bad", "escalate"]
+    ],
+    bad: [
+      ["alert-api", 0, "c", "POST /triage?setup=agent  { type: auth_failures }"],
+      ["api-prompt", 0, "c", "prompt: alert as plain text, four lookups + submit_verdict offered"],
+      ["prompt-agent", 0, "c", "agent: start"],
+      ["tool-identity", 0, "c", "get_identity(account)"],
+      ["tool-identity", 1, "r", "  result: conflicting signals"],
+      ["agent-val", 0, "w", "submit_verdict arguments fail the Verdict model"],
+      ["retry", 0, "w", "invalid  ->  one retry"],
+      ["agent-val", 0, "w", "second submit_verdict also invalid"],
+      ["val-fallback", 0, "v", "fallback verdict: escalate, severity medium, needs_human true", "warn", "fallback"]
+    ]
+  };
+
+  var runId = 0, pathStart = {};
+  function clearLit() {
+    Object.keys(nodes).forEach(function (k) { nodes[k].classList.remove("lit", "amber", "red"); });
+    Object.keys(edges).forEach(function (k) { edges[k].classList.remove("on", "warn", "bad"); });
+    dot.setAttribute("visibility", "hidden");
+  }
+  function addLog(cls, text) {
+    var s = document.createElement("span"); s.className = "l " + cls; s.textContent = "> " + text;
+    if (text.charAt(0) === " ") s.textContent = text;
+    logEl.appendChild(s);
+  }
+  function lightNode(k, tone) {
+    var n = nodes[k]; if (!n) return;
+    n.classList.add("lit");
+    if (tone === "warn") n.classList.add("amber");
+    if (tone === "bad") n.classList.add("red");
+  }
+  function travel(edge, reverse, token) {
+    return new Promise(function (resolve) {
+      var len = edge.getTotalLength();
+      if (reduce) { resolve(); return; }
+      dot.setAttribute("visibility", "visible");
+      var dur = Math.max(380, len / 0.42), t0 = null;
+      function frame(ts) {
+        if (token !== runId) { resolve(); return; }
+        if (t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / dur), q = reverse ? 1 - p : p;
+        var pt = edge.getPointAtLength(q * len);
+        dot.setAttribute("cx", pt.x); dot.setAttribute("cy", pt.y);
+        if (p < 1) requestAnimationFrame(frame); else resolve();
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, reduce ? 0 : ms); }); }
+
+  async function run(name) {
+    var token = ++runId;
+    clearLit();
+    logEl.innerHTML = "";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-sc]"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.sc === name)); });
+    var steps = SC[name];
+    for (var i = 0; i < steps.length; i++) {
+      if (token !== runId) return;
+      var s = steps[i], e = edges[s[0]], rev = !!s[1], tone = s[4] || "";
+      var from = e.dataset.from, to = e.dataset.to;
+      addLog(s[2], s[3]);
+      logEl.scrollTop = logEl.scrollHeight;
+      lightNode(rev ? to : from, "");
+      e.classList.add("on");
+      if (tone === "warn") e.classList.add("warn");
+      if (tone === "bad") e.classList.add("bad");
+      await travel(e, rev, token);
+      if (token !== runId) return;
+      lightNode(rev ? from : to, s[5] ? tone : "");
+      await wait(220);
+    }
+    dot.setAttribute("visibility", "hidden");
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-sc]"), function (b) {
+    b.addEventListener("click", function () { run(b.dataset.sc); });
+  });
+  showDetail("agent");
+  if (!reduce) setTimeout(function () { if (runId === 0) run("benign"); }, 900);
+})();
+</script>
+
+</body>
+</html>

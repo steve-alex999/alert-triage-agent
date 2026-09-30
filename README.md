@@ -31,6 +31,10 @@ verdict that escalates with `needs_human` set. The `baseline` setup offers only
 `submit_verdict`, and the `guard` setup wraps the alert in `<untrusted_alert>` tags and
 tells the model to treat its contents as data.
 
+![Flow diagram of the triage agent](docs/triage-diagram.png)
+
+The diagram above is a still from an interactive version, [`docs/triage-diagram.html`](docs/triage-diagram.html). Download the file and open it in a browser to run example alerts through each path.
+
 ## Run it with Docker
 
 ```bash
