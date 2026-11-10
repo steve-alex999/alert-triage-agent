@@ -6,3 +6,4 @@ __pycache__/
 .env
 results/*-n[0-9]*.jsonl
 results/*.log
+.DS_Store
